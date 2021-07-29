@@ -1,8 +1,3 @@
-#TODO
-# Auto generate domain/directory/artifact/dbName from branch name
-# Additional steps for non productional build e.g. db migrations/seeding
-# Dockerized server [dynamic subdomain mapping] (https://stackoverflow.com/a/39058593)
-
 # Builds and deploy to required server
 name: Deploy
 
@@ -13,26 +8,112 @@ on:
         description: 'Env'     
         required: true
         default: 'dev'
-      branch_ref:
-        description: 'Ref'     
-        required: true
-        default: 'dev'
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     steps:
-
       - name: Declarations
         id: declare
         uses: actions/github-script@v4
         with:
           script: |
-            const refInfo = context.ref.split('/')
+            const refInfo = "${{ github.ref }}".split('/')
             const domain= refInfo[2] + (refInfo[3]? refInfo[3].split("-")[1]: "")
             core.setOutput('domain', domain)
 
-      - name: Final step
-        run: echo "Got domain ${{steps.declare.outputs.domain}}"
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
 
+#      - name: Installing core packages
+#        run: npm i
+#
+#      - name: Checking linting issues
+#        run: npm run lint
+#
+#      - name: Test
+#        run: npm test
+#
+#      - name: Build
+#        run: npm run build
+
+      - name: Archive
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.declare.outputs.domain }}
+          path: |
+            dist
+
+  deploy:
+    environment: ${{ github.event.inputs.env }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Declarations
+        id: declare
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const refInfo = "${{ github.ref }}".split('/')
+            const domain= refInfo[2] + (refInfo[3]? refInfo[3].split("-")[1]: "")
+            core.setOutput('domain', domain)
+
+      - name: Setting env
+        run: |
+          echo "Deploying on ${{ steps.declare.outputs.domain }} (${{ github.event.inputs.env }}) from branch '${{ github.ref }}'"
+          touch .env
+          echo NODE_ENV= ${{ github.event.inputs.env }} >> .env
+          echo DATEBASE_NAME= ${{ steps.declare.outputs.domain }} >> .env
+
+      - name: Pull archive
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ steps.declare.outputs.domain }}
+
+#      - name: Pre deployment scripts
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.SERVER_HOST }}
+#          username: ${{ secrets.SERVER_USER }}
+#          key: ${{ secrets.SERVER_KEY }}
+#          port: ${{ secrets.SERVER_PORT }}
+#          script: |
+#            echo "mysql -uroot -e "CREATE DATABASE IF NOT EXISTS ${{ steps.declare.outputs.domain }};"
+#            cd ~
+#            rm -rf deployments/${{ steps.declare.outputs.domain }}
+#            mkdir -p deployments/${{ steps.declare.outputs.domain }}
+
+#      - name: Push deployment files
+#        uses: appleboy/scp-action@master
+#        with:
+#          host: ${{ secrets.SERVER_HOST }}
+#          username: ${{ secrets.SERVER_USER }}
+#          key: ${{ secrets.SERVER_KEY }}
+#          port: ${{ secrets.SERVER_PORT }}
+#          source: '.'
+#          target: '~/deployments/${{ steps.declare.outputs.domain }}'
+
+#      - name: Cleanup
+#        if: ${{ github.event.inputs.env != 'production' }}
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.SERVER_HOST }}
+#          username: ${{ secrets.SERVER_USER }}
+#          key: ${{ secrets.SERVER_KEY }}
+#          port: ${{ secrets.SERVER_PORT }}
+#          script: |
+#            echo "Drop tables in '${{ steps.declare.outputs.domain }}' db, rerun migration and seeders."
+
+#      - name: Post deployment scripts
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.SERVER_HOST }}
+#          username: ${{ secrets.SERVER_USER }}
+#          key: ${{ secrets.SERVER_KEY }}
+#          port: ${{ secrets.SERVER_PORT }}
+#          script: |
+#            echo "Run server here."
+#            cd ~/deployments/${{ steps.declare.outputs.domain }}
+#            ls -al
