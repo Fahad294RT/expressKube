@@ -50,7 +50,4 @@ jobs:
       - name: Deploy
         run: |
           echo "Deploying."
-          echo ls -a
-      
-      - name: Setting artifact
-        run: exit 0
+          ls -a
