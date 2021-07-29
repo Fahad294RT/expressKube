@@ -2,14 +2,17 @@
 name: Test CI
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  on: 
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Command'     
+        required: true
+        default: 'build'  
 
 jobs:
   build:
-
+    if: github.event.inputs.command == 'build'
     runs-on: ubuntu-latest
 
     steps:
