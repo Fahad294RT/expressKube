@@ -24,11 +24,11 @@ jobs:
           npm i
           npm i -D
 
-      - name: Build
-        run: npm run build
-
       - name: Test
         run: npm run test
+
+      - name: Build
+        run: npm run build
 
       - name: Archive
         uses: actions/upload-artifact@v2
@@ -36,7 +36,6 @@ jobs:
           name: github.sha
           path: |
             dist
-            !dist/**/*.md
 
   deploy:
     needs: build
@@ -55,4 +54,3 @@ jobs:
       
       - name: Setting artifact
         run: exit 0
-        
