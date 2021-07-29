@@ -1,37 +1,58 @@
 
-name: Test CI
+# Builds and deploy to required server
+name: Develop
+
+# branch (master, hotfix, release, develop, feature/<domain>)
+# jobs (hold, build, test, performance, staging, uat, production)
+# github.sha
 
 on:
   push:
-    branches: [ main ]
-
-  workflow_dispatch:
-    inputs:
-      command:
-        description: 'Command'     
-        required: true
-        default: 'build'
-
+    branches:
+      - dev
+  
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Build
-        run: exit 0
 
-  test:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Installation
+        run: |
+          npm i
+          npm i -D
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm run test
+
+      - name: Archive
+        uses: actions/upload-artifact@v2
+        with:
+          name: github.sha
+          path: |
+            dist
+            !dist/**/*.md
+
+  deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Test
-        run: exit 0
 
-  deploy:
-    if: github.event.inputs.command == 'deploy' && github.ref == 'refs/heads/master'
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
+      - name: Pull archive
+        uses: actions/download-artifact@v2
+        with:
+          name: github.sha
+      
       - name: Deploy
+        run: |
+          echo "Deploying."
+          echo ls -a
+      
+      - name: Setting artifact
         run: exit 0
-
+        
