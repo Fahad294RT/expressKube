@@ -36,7 +36,7 @@ jobs:
       - name: Archive
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.ref }}
+          name: ${{ github.event.inputs.env }}
           path: |
             dist
 
@@ -49,7 +49,7 @@ jobs:
       - name: Pull archive
         uses: actions/download-artifact@v2
         with:
-          name: ${{ github.ref }}
+          name: ${{ github.event.inputs.env }}
       
       - name: Setting env
         run: |
