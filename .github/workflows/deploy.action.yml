@@ -1,10 +1,11 @@
 
 # Builds and deploy to required server
-name: Deployment
+name: Deploy
 
 on:
   workflow_dispatch:
     inputs:
+
       env:
         description: 'Env'     
         required: true
@@ -44,7 +45,7 @@ jobs:
           path: |
             dist
 
-  production:
+  deploy:
     environment: ${{ github.event.inputs.env }}
     needs: build
     runs-on: ubuntu-latest
