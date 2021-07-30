@@ -1,6 +1,6 @@
 
 # Builds and deploy to required server
-name: Deploy
+name: Deployment
 
 on:
   workflow_dispatch:
