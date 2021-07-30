@@ -1,0 +1,52 @@
+
+name: Develop
+
+on:
+  push:
+    branches:
+      - dev
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Installing core packages
+        run: npm i
+
+      - name: Installing dev dependencies
+        run: npm i -D
+
+      - name: Checking linting issues
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Archive
+        uses: actions/upload-artifact@v2
+        with:
+          name: github.sha
+          path: |
+            dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Pull archive
+        uses: actions/download-artifact@v2
+        with:
+          name: github.sha
+      
+      - name: Deploy
+        run: |
+          echo "Deploying."
+          ls -a

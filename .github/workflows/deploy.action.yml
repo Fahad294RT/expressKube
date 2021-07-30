@@ -1,15 +1,19 @@
 
 # Builds and deploy to required server
-name: Develop
+
+name: Deploy
 
 # branch (master, hotfix, release, develop, feature/<domain>)
 # jobs (hold, build, test, performance, staging, uat, production)
 # github.sha
 
 on:
-  push:
-    branches:
-      - dev
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Server'     
+        required: true
+        default: 'uat'
   
 jobs:
   build:
@@ -37,7 +41,24 @@ jobs:
           path: |
             dist
 
-  deploy:
+  uat:
+    if: github.event.inputs.command == 'uat'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Pull archive
+        uses: actions/download-artifact@v2
+        with:
+          name: github.sha
+      
+      - name: Deploy
+        run: |
+          echo "Deploying."
+          ls -a
+
+  production:
+    if: github.event.inputs.command == 'production'
     needs: build
     runs-on: ubuntu-latest
     steps:

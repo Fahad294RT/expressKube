@@ -8,7 +8,9 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "build": "parcel build index.js",
-    "test-e2e": "clear && npx jest --no-cache --verbose -t \"E2E\""
+    "test-e2e": "clear && npx jest --no-cache --verbose -t \"E2E\"",
+    "lint": "echo lint stuff here"
+
   },
   "author": "",
   "license": "ISC",

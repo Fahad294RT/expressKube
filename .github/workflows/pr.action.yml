@@ -1,0 +1,25 @@
+
+name: PR
+
+on: [pull_request]
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Installing core packages
+        run: npm i
+          
+
+      - name: Installing dev dependencies
+        run: npm i -D
+
+      - name: Checking linting issues
+        run: npm run lint
+
+      - name: Test
+        run: npm test
