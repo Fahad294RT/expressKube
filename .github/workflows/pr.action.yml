@@ -1,8 +1,11 @@
 
 name: PR
 
-on: [pull_request]
-  
+on:
+  pull_request:
+    branches:
+      - tempbranchtodisable
+
 jobs:
   build:
     runs-on: ubuntu-latest
