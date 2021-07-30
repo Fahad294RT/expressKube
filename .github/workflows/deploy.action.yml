@@ -10,6 +10,10 @@ on:
         description: 'Env'     
         required: true
         default: 'dev'
+      branch_ref:
+        description: 'Ref'     
+        required: true
+        default: 'dev'
 
 jobs:
   build:
@@ -19,7 +23,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          ref: ${{ github.ref }}
+          ref: refs/heads/${{ github.event.inputs.branch_ref }}
 
       - name: Installing core packages
         run: npm i
@@ -53,7 +57,7 @@ jobs:
       
       - name: Setting env
         run: |
-          echo "Deploying on ${{ github.event.inputs.env }} from branch ${{ github.ref }}"
+          echo "Deploying on ${{ github.event.inputs.env }} from branch refs/heads/${{ github.event.inputs.branch_ref }}"
           touch .env
           echo NODE_ENV= ${{ github.event.inputs.env }} >> .env
 
