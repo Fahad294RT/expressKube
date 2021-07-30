@@ -11,11 +11,6 @@ on:
         required: true
         default: 'dev'
 
-      branch_ref:
-        description: 'Branch'     
-        required: true
-        default: 'dev'
-  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,7 +19,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          ref: refs/heads/${{ github.event.inputs.branch_ref }}
+          ref: ${{ github.ref }}
 
       - name: Installing core packages
         run: npm i
@@ -41,7 +36,7 @@ jobs:
       - name: Archive
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.event.inputs.branch_ref }}
+          name: ${{ github.ref }}
           path: |
             dist
 
@@ -54,11 +49,11 @@ jobs:
       - name: Pull archive
         uses: actions/download-artifact@v2
         with:
-          name: ${{ github.event.inputs.branch_ref }}
+          name: ${{ github.ref }}
       
       - name: Setting env
         run: |
-          echo "Deploying on ${{ github.event.inputs.env }} from branch ${{ github.event.inputs.branch_ref }}"
+          echo "Deploying on ${{ github.event.inputs.env }} from branch ${{ github.ref }}"
           touch .env
           echo NODE_ENV= ${{ github.event.inputs.env }} >> .env
 
