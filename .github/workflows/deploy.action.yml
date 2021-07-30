@@ -1,19 +1,19 @@
 
 # Builds and deploy to required server
-
 name: Deploy
-
-# branch (master, hotfix, release, develop, feature/<domain>)
-# jobs (hold, build, test, performance, staging, uat, production)
-# github.sha
 
 on:
   workflow_dispatch:
     inputs:
-      command:
-        description: 'Server'     
+      env:
+        description: 'Env'     
         required: true
-        default: 'uat'
+        default: 'dev'
+
+      branch_ref:
+        description: 'Branch'     
+        required: true
+        default: 'dev'
   
 jobs:
   build:
@@ -22,11 +22,14 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          ref: refs/heads/${{ github.event.inputs.branch_ref }}
 
-      - name: Installation
-        run: |
-          npm i
-          npm i -D
+      - name: Installing core packages
+        run: npm i
+
+      - name: Checking linting issues
+        run: npm run lint
 
       - name: Test
         run: npm test
@@ -37,28 +40,12 @@ jobs:
       - name: Archive
         uses: actions/upload-artifact@v2
         with:
-          name: github.sha
+          name: ${{ github.event.inputs.branch_ref }}
           path: |
             dist
 
-  uat:
-    if: github.event.inputs.command == 'uat'
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-
-      - name: Pull archive
-        uses: actions/download-artifact@v2
-        with:
-          name: github.sha
-      
-      - name: Deploy
-        run: |
-          echo "Deploying."
-          ls -a
-
   production:
-    if: github.event.inputs.command == 'production'
+    environment: ${{ github.event.inputs.env }}
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -66,9 +53,23 @@ jobs:
       - name: Pull archive
         uses: actions/download-artifact@v2
         with:
-          name: github.sha
+          name: ${{ github.event.inputs.branch_ref }}
       
-      - name: Deploy
+      - name: Setting env
         run: |
-          echo "Deploying."
-          ls -a
+          echo "Deploying on ${{ github.event.inputs.env }} from branch ${{ github.event.inputs.branch_ref }}"
+          touch .env
+          echo NODE_ENV= ${{ github.event.inputs.env }} >> .env
+
+      - name: Terminate
+        run: exit 0
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploying to S3 bucket
+        run: aws s3 sync . s3://${{ secrets.AWS_FRONT_END_BUCKET }}/ --delete

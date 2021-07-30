@@ -4,21 +4,21 @@ name: Develop
 on:
   push:
     branches:
-      - dev
+      - tempbranchtodisable
   
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
 
+      - name: Terminate
+        run: exit 1
+        
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Installing core packages
         run: npm i
-
-      - name: Installing dev dependencies
-        run: npm i -D
 
       - name: Checking linting issues
         run: npm run lint

@@ -13,10 +13,6 @@ jobs:
 
       - name: Installing core packages
         run: npm i
-          
-
-      - name: Installing dev dependencies
-        run: npm i -D
 
       - name: Checking linting issues
         run: npm run lint
