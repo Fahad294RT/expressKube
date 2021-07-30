@@ -61,7 +61,18 @@ jobs:
           touch .env
           echo NODE_ENV= ${{ github.event.inputs.env }} >> .env
 
-      - name: Configure AWS Credentials
+      - name: Push deployment files
+        uses: appleboy/scp-action@master
+        env:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+        with:
+          source: '.'
+          target: '/srv/dev'
+
+      - name: Additional deployment scripts
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -70,6 +81,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
             whoami
+            cd /srv/dev
             ls -al
 
       #- name: Deploying to S3 bucket
