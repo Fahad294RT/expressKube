@@ -57,12 +57,9 @@ jobs:
       
       - name: Setting env
         run: |
-          echo "Deploying on ${{ github.event.inputs.env }} from branch refs/heads/${{ github.event.inputs.branch_ref }}"
+          echo "Deploying on ${{ secrets.AWS_FRONT_END_BUCKET }} (${{ github.event.inputs.env }}) from branch refs/heads/${{ github.event.inputs.branch_ref }}"
           touch .env
           echo NODE_ENV= ${{ github.event.inputs.env }} >> .env
-
-      - name: Terminate
-        run: exit 0
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
