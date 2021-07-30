@@ -20,56 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          ref: refs/heads/${{ github.event.inputs.branch_ref }}
-
-      - name: Installing core packages
-        run: npm i
-
-      - name: Checking linting issues
-        run: npm run lint
-
-      - name: Test
-        run: npm test
-
-      - name: Build
-        run: npm run build
-
-      - name: Archive
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ github.event.inputs.env }}
-          path: |
-            dist
-
-  deploy:
-    environment: ${{ github.event.inputs.env }}
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-
-      - name: Pull archive
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ github.event.inputs.env }}
-      
-      - name: Setting env
-        run: |
-          echo "Deploying on ${{ secrets.AWS_FRONT_END_BUCKET }} (${{ github.event.inputs.env }}) from branch refs/heads/${{ github.event.inputs.branch_ref }}"
-          touch .env
-          echo NODE_ENV= ${{ github.event.inputs.env }} >> .env
-
       - name: Configure AWS Credentials
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
           script: |
             whoami
             ls -al
-
-      #- name: Deploying to S3 bucket
-      #  run: aws s3 sync . s3://${{ secrets.AWS_FRONT_END_BUCKET }}/ --delete
