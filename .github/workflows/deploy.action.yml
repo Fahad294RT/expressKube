@@ -80,7 +80,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
             whoami
-            cd /srv/dev
+            cd ~/dev
             ls -al
 
       #- name: Deploying to S3 bucket
