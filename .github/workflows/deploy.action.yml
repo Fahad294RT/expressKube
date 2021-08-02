@@ -69,7 +69,7 @@ jobs:
           key: ${{ secrets.SERVER_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           source: '.'
-          target: '/srv/dev'
+          target: '~/dev'
 
       - name: Additional deployment scripts
         uses: appleboy/ssh-action@master
