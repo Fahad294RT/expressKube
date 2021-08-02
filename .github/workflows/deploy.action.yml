@@ -61,7 +61,7 @@ jobs:
           touch .env
           echo NODE_ENV= ${{ github.event.inputs.env }} >> .env
 
-      - name: Pre-deployment scripts
+      - name: Pre deployment scripts
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -83,7 +83,7 @@ jobs:
           source: '.'
           target: '~/deployments/${{ github.event.inputs.env }}'
 
-      - name: Additional deployment scripts
+      - name: Post deployment scripts
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -94,5 +94,12 @@ jobs:
             cd ~/deployments/${{ github.event.inputs.env }}
             ls -al
 
+      #- name: Configure AWS Credentials
+      #    uses: aws-actions/configure-aws-credentials@v1
+      #    with:
+      #      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #      aws-region: ${{ secrets.AWS_REGION }}
+      
       #- name: Deploying to S3 bucket
-      #  run: aws s3 sync . s3://${{ secrets.AWS_FRONT_END_BUCKET }}/ --delete
+      #  run: aws s3 sync . s3://${{ secrets.AWS_FRONT_END_BUCKET }}/ --de
