@@ -61,6 +61,18 @@ jobs:
           touch .env
           echo NODE_ENV= ${{ github.event.inputs.env }} >> .env
 
+      - name: Pre-deployment scripts
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            cd ~
+            rm -rf deployments/${{ github.event.inputs.env }}
+            mkdir deployments/${{ github.event.inputs.env }}
+
       - name: Push deployment files
         uses: appleboy/scp-action@master
         with:
@@ -69,7 +81,7 @@ jobs:
           key: ${{ secrets.SERVER_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           source: '.'
-          target: '~/${{ github.event.inputs.env }}'
+          target: '~/deployments/${{ github.event.inputs.env }}'
 
       - name: Additional deployment scripts
         uses: appleboy/ssh-action@master
@@ -79,8 +91,7 @@ jobs:
           key: ${{ secrets.SERVER_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            whoami
-            cd ~/${{ github.event.inputs.env }}
+            cd ~/deployments/${{ github.event.inputs.env }}
             ls -al
 
       #- name: Deploying to S3 bucket
