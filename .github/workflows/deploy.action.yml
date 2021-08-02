@@ -71,7 +71,7 @@ jobs:
           script: |
             cd ~
             rm -rf deployments/${{ github.event.inputs.env }}
-            mkdir deployments/${{ github.event.inputs.env }}
+            mkdir -p deployments/${{ github.event.inputs.env }}
 
       - name: Push deployment files
         uses: appleboy/scp-action@master
