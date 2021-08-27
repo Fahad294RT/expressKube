@@ -30,7 +30,7 @@ jobs:
         with:
           script: |
             const refInfo = context.ref.split('/')
-            const domain= refInfo[2] + refInfo[3]? refInfo[3].split("-")[1]: ""
+            const domain= refInfo[2] + (refInfo[3]? refInfo[3].split("-")[1]: "")
             core.setOutput('domain', domain)
 
       - name: Final step
