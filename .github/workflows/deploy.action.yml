@@ -1,3 +1,7 @@
+#TODO
+# Auto generate domain/directory/artifact/dbName from branch name
+# Additional steps for non productional build e.g. db migrations/seeding
+# Dockerized server [dynamic subdomain mapping] (https://stackoverflow.com/a/39058593)
 
 # Builds and deploy to required server
 name: Deploy
@@ -5,7 +9,6 @@ name: Deploy
 on:
   workflow_dispatch:
     inputs:
-
       env:
         description: 'Env'     
         required: true
@@ -17,89 +20,19 @@ on:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
     steps:
 
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Declarations
+        id: declare
+        uses: actions/github-script@4.1.0
         with:
-          ref: refs/heads/${{ github.event.inputs.branch_ref }}
-
-      - name: Installing core packages
-        run: npm i
-
-      - name: Checking linting issues
-        run: npm run lint
-
-      - name: Test
-        run: npm test
-
-      - name: Build
-        run: npm run build
-
-      - name: Archive
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ github.event.inputs.env }}
-          path: |
-            dist
-
-  deploy:
-    environment: ${{ github.event.inputs.env }}
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-
-      - name: Pull archive
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ github.event.inputs.env }}
-      
-      - name: Setting env
-        run: |
-          echo "Deploying on ${{ secrets.AWS_FRONT_END_BUCKET }} (${{ github.event.inputs.env }}) from branch refs/heads/${{ github.event.inputs.branch_ref }}"
-          touch .env
-          echo NODE_ENV= ${{ github.event.inputs.env }} >> .env
-
-      - name: Pre deployment scripts
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
           script: |
-            cd ~
-            rm -rf deployments/${{ github.event.inputs.env }}
-            mkdir -p deployments/${{ github.event.inputs.env }}
+            const refInfo = context.ref.split('/')
+            const domain= refInfo[2] + refInfo[3]? refInfo.split("-")[1]: ""
+            core.setOutput('domain', domain)
 
-      - name: Push deployment files
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
-          source: '.'
-          target: '~/deployments/${{ github.event.inputs.env }}'
+      - name: Final step
+        run: echo "Got domain ${{steps.declare.outputs.domain}}"
 
-      - name: Post deployment scripts
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
-          script: |
-            cd ~/deployments/${{ github.event.inputs.env }}
-            ls -al
-
-      #- name: Configure AWS Credentials
-      #    uses: aws-actions/configure-aws-credentials@v1
-      #    with:
-      #      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #      aws-region: ${{ secrets.AWS_REGION }}
-      
-      #- name: Deploying to S3 bucket
-      #  run: aws s3 sync . s3://${{ secrets.AWS_FRONT_END_BUCKET }}/ --de
