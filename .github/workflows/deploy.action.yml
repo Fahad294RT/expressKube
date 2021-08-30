@@ -79,48 +79,48 @@ jobs:
         with:
           name: ${{ steps.declare.outputs.domain }}
 
-#      - name: Pre deployment scripts
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SERVER_HOST }}
-#          username: ${{ secrets.SERVER_USER }}
-#          key: ${{ secrets.SERVER_KEY }}
-#          port: ${{ secrets.SERVER_PORT }}
-#          script: |
-#            echo "mysql -uroot -e "CREATE DATABASE IF NOT EXISTS ${{ steps.declare.outputs.domain }};"
-#            cd ~
-#            rm -rf deployments/${{ steps.declare.outputs.domain }}
-#            mkdir -p deployments/${{ steps.declare.outputs.domain }}
+      - name: Pre deployment scripts
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            echo "mysql -uroot -e "CREATE DATABASE IF NOT EXISTS ${{ steps.declare.outputs.domain }};"
+            cd ~
+            rm -rf deployments/${{ steps.declare.outputs.domain }}
+            mkdir -p deployments/${{ steps.declare.outputs.domain }}
 
-#      - name: Push deployment files
-#        uses: appleboy/scp-action@master
-#        with:
-#          host: ${{ secrets.SERVER_HOST }}
-#          username: ${{ secrets.SERVER_USER }}
-#          key: ${{ secrets.SERVER_KEY }}
-#          port: ${{ secrets.SERVER_PORT }}
-#          source: '.'
-#          target: '~/deployments/${{ steps.declare.outputs.domain }}'
+      - name: Push deployment files
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: '.'
+          target: '~/deployments/${{ steps.declare.outputs.domain }}'
 
-#      - name: Cleanup
-#        if: ${{ github.event.inputs.env != 'production' }}
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SERVER_HOST }}
-#          username: ${{ secrets.SERVER_USER }}
-#          key: ${{ secrets.SERVER_KEY }}
-#          port: ${{ secrets.SERVER_PORT }}
-#          script: |
-#            echo "Drop tables in '${{ steps.declare.outputs.domain }}' db, rerun migration and seeders."
+      - name: Cleanup
+        if: ${{ github.event.inputs.env != 'production' }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            echo "Drop tables in '${{ steps.declare.outputs.domain }}' db, rerun migration and seeders."
 
-#      - name: Post deployment scripts
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SERVER_HOST }}
-#          username: ${{ secrets.SERVER_USER }}
-#          key: ${{ secrets.SERVER_KEY }}
-#          port: ${{ secrets.SERVER_PORT }}
-#          script: |
-#            echo "Run server here."
-#            cd ~/deployments/${{ steps.declare.outputs.domain }}
-#            ls -al
+      - name: Post deployment scripts
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            echo "Run server here."
+            cd ~/deployments/${{ steps.declare.outputs.domain }}
+            ls -al
