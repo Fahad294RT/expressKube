@@ -27,6 +27,13 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
+      - name: Setting a temporary file in dist
+        run: |
+          mkdir dist
+          cd dist
+          touch temp.txt
+          echo "This is temporary file and will be removed later." >> temp.txt
+
 #      - name: Installing core packages
 #        run: npm i
 #
