@@ -31,8 +31,8 @@ jobs:
         run: |
           mkdir dist
           cd dist
-          touch temp.txt
-          echo "This is temporary file and will be removed later." >> temp.txt
+          touch index.html
+          echo "<b>Content for domain ${{steps.declare.outputs.domain}}</b>" >> index.html
 
 #      - name: Installing core packages
 #        run: npm i
