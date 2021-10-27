@@ -10,16 +10,18 @@
     "build": "parcel build index.js",
     "test-e2e": "clear && npx jest --no-cache --verbose -t \"E2E\"",
     "lint": "echo lint stuff here"
-
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "mysql2": "^2.3.2",
+    "sequelize": "^6.8.0"
   },
   "devDependencies": {
     "jest": "^27.0.6",
     "nodemon": "^2.0.12",
-    "parcel-bundler": "^1.12.5"
+    "parcel-bundler": "^1.12.5",
+    "sequelize-cli": "^6.2.0"
   }
 }
